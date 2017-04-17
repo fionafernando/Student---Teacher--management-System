@@ -2,6 +2,7 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
+var $  = require('jquery');
 
 //user require js to load components within the app
 //var Teachers = require('./teacher');
@@ -41,7 +42,7 @@ Teacher.instances = {};
 
 
 //create contact items list
-var ContactItem = React.createClass({
+var StudentItem = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
     email: React.PropTypes.string.isRequired,
@@ -80,7 +81,7 @@ var ContactItem = React.createClass({
 
 ///////////////////////////////////Teachers/////////////////////////////////////////////////////////////
 //create contact items list
-var ContactItemTeacher = React.createClass({
+var TeacherItem = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
     email: React.PropTypes.string.isRequired,
@@ -103,7 +104,7 @@ var ContactItemTeacher = React.createClass({
            style : { marginRight: "10px" },
            onClick: function(e){ 
             var self = this;
-             onDeleteStudent(self); 
+             onDeleteTeacher(self); 
            }.bind(this)
          },"Delete"),
         React.createElement('Button', {
@@ -111,7 +112,7 @@ var ContactItemTeacher = React.createClass({
            className: 'btn btn-info btn-sm',
            onClick: function(e){ 
             var self = this;
-             onUpdateStudent(self); 
+             onUpdateTeacher(self); 
            }.bind(this)
          },"Uppdate")     
       )
@@ -119,7 +120,7 @@ var ContactItemTeacher = React.createClass({
   },
 });
 
-
+//React Elements for Teacher Form
 var ContactFormTeacher = React.createClass({
   propTypes: {
     value: React.PropTypes.object.isRequired,
@@ -181,11 +182,20 @@ var ContactFormTeacher = React.createClass({
           var self = this;
           onAddTeacher(self); 
         }.bind(this)
-      },"Add Teacher")   
+      },"Add Teacher"),
+         React.createElement('button', {
+         type: 'submit', style: {float: "left" , marginRight: "10px"},
+         className: 'btn btn-success btn-sm',
+         onClick: function(e){ 
+          var self = this;
+          afterUpdateTeacher(self); 
+        }.bind(this)
+      },"Update Teacher")    
         )     
       );
   },
 });
+
 
 //Create React Elements for teachers view
 var ContactViewTeachers = React.createClass({
@@ -200,7 +210,7 @@ var ContactViewTeachers = React.createClass({
      return contact.email;
       })
     .map(function(contact) { 
-      return React.createElement(ContactItemTeacher, contact); 
+      return React.createElement(TeacherItem, contact); 
     });
 
     return (
@@ -231,6 +241,7 @@ var ContactForm = React.createClass({
       React.createElement('form', {className: 'ContactForm'},
         React.createElement('h1', {type: 'text', style: {float: "left", marginRight: "455px"}}, "Student Details"),  
         React.createElement('input', {
+          id: 'id_name',
           type: 'text',
           className : 'form-control',
           placeholder: 'Name (required)',
@@ -240,6 +251,7 @@ var ContactForm = React.createClass({
           },
         }),
         React.createElement('input', {
+          id: 'id_email',
           type: 'email',
           className : 'form-control',
           placeholder: 'Email',
@@ -249,6 +261,7 @@ var ContactForm = React.createClass({
           },
         }),
         React.createElement('input', {
+          id: 'id_fullName',
           placeholder: 'Full Name',
           className : 'form-control',
           value: this.props.value.fullName,
@@ -257,6 +270,7 @@ var ContactForm = React.createClass({
           },
         }),
         React.createElement('textarea', {
+          id : 'id_comment',
           placeholder: 'Comment',
           className : 'form-control',
           value: this.props.value.comment,
@@ -265,13 +279,22 @@ var ContactForm = React.createClass({
           },
         }),
         React.createElement('button', {
+           id : 'id_addStudent',
            type: 'submit', style: {float: "left" , marginRight: "10px"},
            className: 'btn btn-success btn-sm',
            onClick: function(e){ 
             var self = this;
              onAddStudent(self); 
            }.bind(this)
-         },"Add Student")   
+         },"Add Student"),
+        React.createElement('button', {
+         type: 'submit', style: {float: "left" , marginRight: "10px"},
+         className: 'btn btn-success btn-sm',
+         onClick: function(e){ 
+          var self = this;
+          afterUpdateStudent(self); 
+        }.bind(this)
+      },"Update Student")  
          )     
     );
   },
@@ -287,7 +310,7 @@ var ContactView = React.createClass({
 
   render: function() {
     var contactItemElements = this.props.contacts.filter(function(contact) { return contact.email; })
-      .map(function(contact) { return React.createElement(ContactItem, contact); });
+      .map(function(contact) { return React.createElement(StudentItem, contact); });
 
     return (
       React.createElement('div', {className: 'ContactView'},
@@ -346,9 +369,41 @@ function onDeleteStudent(obj){
 
 //Function to Update student
 function onUpdateStudent(obj){
-    var key = obj.props.key;
+    $('#id_name').val(obj.props.name);
+    $('#id_email').val(obj.props.email);
+    $('#id_fullName').val(obj.props.fullName);
+    $('#id_comment').val(obj.props.comment);    
 }
 
+//write updated teacher data to localstorage
+function afterUpdateTeacher(obj){
+     var teachers = JSON.parse(localStorage.teachers); 
+     var name = obj.props.name + '001';
+     for (var i = 0; i < teachers.length; i++) {
+      if(name === teachers[i].key){  //look for match with name
+       teachers[i].name == obj.name;
+       teachers[i].fullName == obj.fullName;
+         //add two
+       break;  //exit loop since you found the teacher
+      }
+     }
+     localStorage.setItem("name", JSON.stringify(teachers));  //put the object back
+}
+
+//write updated student data to localstorage
+function afterUpdateStudent(obj){
+     var students = JSON.parse(localStorage.students); 
+     var name = obj.props.name + '001';
+     for (var i = 0; i < students.length; i++) {
+      if(name === students[i].key){  //look for match with name
+       students[i].name == obj.name;
+       students[i].fullName == obj.fullName;
+       
+       break;  //exit loop since you found the teacher
+      }
+     }
+     localStorage.setItem("name", JSON.stringify(students));  //put the object back
+}
 //Set status changes
 function updateNewContactTeacher(contact) {
     setState({ newContact: contact });
@@ -499,19 +554,19 @@ function setState(changes) {
         if(location.hash == '#students'){    
             ReactDOM.render(
               React.createElement(ContactView, Object.assign({}, state, {
-                onNewContactChange: updateNewContact,
+                //onNewContactChange: updateNewContact,
               })),
               document.getElementById('main'));
         }
         else if(location.hash == '#Dashboard'){ 
           ReactDOM.render(
-           React.createElement('div', {className: 'ContactView'},         
+            React.createElement('div', {className: 'ContactView'},         
             React.createElement('h1', {className: 'ContactView-title'}, "DashBoard")
            ),document.getElementById('main'));
         } else{
           ReactDOM.render(
             React.createElement(ContactViewTeachers, Object.assign({}, state, {
-              onNewContactChangeTeacher : updateNewContactTeacher,
+              //onNewContactChangeTeacher : updateNewContactTeacher,
             })),
             document.getElementById('main'));
         }
