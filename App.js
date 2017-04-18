@@ -11,15 +11,8 @@
      */
      //user require js to load components within the app
      var state = {};
-
-     var _teacher = Teachers(), _student = Students();    
-
-
-   // Set initial data
-    setState({
-          contacts: location.hash == '#students' ? _student.getStudents() : _teacher.getContactsTeacher(),
-          newContact: location.hash == '#students' ? {key: "", name: "", email: "", fullName: "", comment:""} : {key: "", name: "", email: "", subject: "", grade:"",comment:""}    
-    }); 
+     var _teacher = Teachers({setStateHandler : setState});
+     var _student = Students({setStateHandler : setState});    
 
     // Make the given changes to the state and perform any required changes
     function setState(changes) {  
@@ -28,10 +21,9 @@
             if(location.hash == '#students'){    
                 ReactDOM.render(
                   React.createElement(_student.ContactView, Object.assign({}, state, {
-                    onNewContactChange: updateNewContact,
+                    onNewContactChange: _student.updateNewContact,
                   })),
                   document.getElementById('main'));  
-                      
             }
             else if(location.hash == '#Dashboard'){ 
               ReactDOM.render(
@@ -41,7 +33,7 @@
             } else{
               ReactDOM.render(
                 React.createElement(_teacher.ContactViewTeachers, Object.assign({}, state, {
-                  onNewContactChangeTeacher : updateNewContactTeacher,
+                  onNewContactChangeTeacher : _teacher.updateNewContactTeacher,
                 })),
                 document.getElementById('main'));
             }
@@ -50,13 +42,18 @@
         {
           ReactDOM.render(
                   React.createElement(_student.ContactView, Object.assign({}, state, {
-                    onNewContactChange: updateNewContact,
+                    onNewContactChange: _student.updateNewContact,
                   })),
           document.getElementById('main'));
         }
       } 
 
-    
+       // Set initial data
+    setState({
+          contacts: location.hash == '#students' ? _student.getStudents() : _teacher.getContactsTeacher(),
+          newContact: location.hash == '#students' ? {key: "", name: "", email: "", fullName: "", comment:""} : {key: "", name: "", email: "", subject: "", grade:"",comment:""}    
+    }); 
+
     function updateNewContact(contact) {
          setState({ newContact: contact });
     }  
@@ -75,11 +72,7 @@
     window.addEventListener('hashchange', navigated, false);
 
     // Start the app
-    navigated();
-       
-    return {
-      setState: setState
-    };
+    navigated();    
 
 };
 return MainRenderComponent;

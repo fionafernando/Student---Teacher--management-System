@@ -2,7 +2,7 @@ define('student.js',['react', 'react-dom','jquery'],
     function(React, ReactDOM, $){
 //Asynchronous module defition with require
 //Using module pattern
-var StudentComponent = function(){
+var StudentComponent = function(options){
        //declare student constructor
        var Student = function(student){
          this.name = student.name;
@@ -10,13 +10,13 @@ var StudentComponent = function(){
          this.fullName = student.fullName;
          this.key = student.key;
          this.comment = student.comment;
-      };
+      },      
+      state = {},
 
-      //declare instance of student constructor
-      Student.instances = {};
+      setStateHandler = options ? options.setStateHandler : null,    
 
       //create contact items list
-      var StudentItem = React.createClass({
+      StudentItem = React.createClass({
         propTypes: {
           name: React.PropTypes.string.isRequired,
           email: React.PropTypes.string.isRequired,
@@ -51,6 +51,8 @@ var StudentComponent = function(){
           );
         },
       });
+        //declare instance of student constructor
+      Student.instances = {};
 
   //Create React Element for the Contact Form
     var ContactForm = React.createClass({
@@ -151,7 +153,7 @@ var StudentComponent = function(){
     });
 
 
-//---------------------------------------------------------------------------Javascript Functions -------------------------------------------
+//---------------------------------------------------------------------------Helper Functions -------------------------------------------
 
     //Function to delete Student
     function onDeleteStudent(obj){
@@ -166,7 +168,9 @@ var StudentComponent = function(){
         }
     }
     function updateNewContact(contact) {
-        //_main.setState({ newContact: contact });
+      if(setStateHandler){        
+        setStateHandler({ newContact: contact });
+      }
     }
 
    //Function to add students
@@ -182,7 +186,7 @@ var StudentComponent = function(){
             comment : obj.comment
         }; 
 
-        //Writing the resulting string as the value of the key "studentsObj" to Local Storage:
+      //Writing the resulting string as the value of the key "studentsObj" to Local Storage:
         Student.instances[newKey] = studentsObj;   
         localStorage.students = JSON.stringify(Student.instances);
          } catch (e) {
@@ -190,7 +194,12 @@ var StudentComponent = function(){
             error = true;
         }
         if (error) alert("User "+ obj.name +" not saved.");
-        //_main.setState(studentsObj);
+        if(setStateHandler){
+           setStateHandler(studentsObj);
+        }else{
+          alert("Unrecognized State");
+        }
+       
         window.location.reload();
     }
   
@@ -205,7 +214,8 @@ var StudentComponent = function(){
     //write updated student data to localstorage
     function afterUpdateStudent(obj){
       var stuObj = obj.props.value;
-      var key = stuObj.name + '001';
+      var key = stuObj.name + "001";
+
       //students object with a list of students
       var studentsList = JSON.parse(localStorage.students);   
           var student = studentsList[key];
@@ -215,47 +225,47 @@ var StudentComponent = function(){
            localStorage.setItem(key, JSON.stringify(studentsList));  //put the object back
            window.location.reload();
     }
+    //convert to student item
+    function convertRow2Obj(studentItm) {
+          var student = new Student(studentItm);
+          return student;
+    };
 
-function convertRow2Obj(studentItm) {
-      var student = new Student(studentItm);
-      return student;
-};
-
-//get Students From local storage
-function getStudents(){
-   var i = 0,
-        key = "",
-        keys = [],
-        studentTableString = "",
-        studentTbl = {},
-        studentArr = [];
-    try {
-        if (localStorage.students) {
-            studentTableString = localStorage.students;
+    //get Students From local storage
+    function getStudents(){
+       var i = 0,
+            key = "",
+            keys = [],
+            studentTableString = "",
+            studentTbl = {},
+            studentArr = [];
+        try {
+            if (localStorage.students) {
+                studentTableString = localStorage.students;
+            }
+        } catch (e) {
+            alert("Error when reading from Local Storage\n" + e);
         }
-    } catch (e) {
-        alert("Error when reading from Local Storage\n" + e);
-    }
 
-    if (studentTableString) {
-        //Converting the student table string into a corresponding map student 
-        //with student rows as elements, with the help of the built-in function JSON.parse
-        studentTbl = JSON.parse(studentTableString);
-        keys = Object.keys(studentTbl);
-        //alert(keys.length + " Users loaded.");       
-        for (i = 0; i < keys.length; i++) {
-            key = keys[i];
-            Student.instances[key] = convertRow2Obj(studentTbl[key]);
-            studentArr.push(convertRow2Obj(studentTbl[key]));
-        }    
-         return studentArr;   
+        if (studentTableString) {
+            //Converting the student table string into a corresponding map student 
+            //with student rows as elements, with the help of the built-in function JSON.parse
+            studentTbl = JSON.parse(studentTableString);
+            keys = Object.keys(studentTbl);
+            //alert(keys.length + " Users loaded.");       
+            for (i = 0; i < keys.length; i++) {
+                key = keys[i];
+                Student.instances[key] = convertRow2Obj(studentTbl[key]);
+                studentArr.push(convertRow2Obj(studentTbl[key]));
+            }    
+             return studentArr;   
+        }
+        else
+        {
+         return [{key: '0001', name:"Suzanne Fiona", email : "fio.july4@gmail.com", fullName: "Suzanne Fiona Fernando", comment: "Hello"}];
+        }
+        
     }
-    else
-    {
-     return [{key: '0001', name:"Suzanne Fiona", email : "fio.july4@gmail.com", fullName: "Suzanne Fiona Fernando", comment: "Hello"}];
-    }
-    
-}
 //---------------------------------------------------------------------------Helper Functions -------------------------------------------
     return {
         onAddStudent:onAddStudent,
@@ -264,7 +274,8 @@ function getStudents(){
         Student:Student,
         onUpdateStudent:onUpdateStudent,
         ContactView:ContactView,
-        ContactForm:ContactForm
+        ContactForm:ContactForm,
+        updateNewContact:updateNewContact
     };
 };
  return StudentComponent;

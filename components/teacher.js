@@ -4,20 +4,21 @@
             //Asynchronous module defition with require
             //Using module pattern
 
-   var TeacherComponent = function(){
-               //create pointer to app.js
+   var TeacherComponent = function(options){
+           
+              //create pointer to app.js
               //declare teacher constructor
-           var Teacher = function(teacher){
+          var Teacher = function(teacher){
                this.name = teacher.name;
                this.email = teacher.email;
                this.subject = teacher.fullName;
                this.key = teacher.key;
                this.grade = teacher.grade;
                this.comment = teacher.comment;
-          };
-                   
+          },
+          
           //React Elements for Teacher Form
-          var ContactFormTeacher = React.createClass({
+          ContactFormTeacher = React.createClass({
               propTypes: {
               value: React.PropTypes.object.isRequired,
               onChange: React.PropTypes.func.isRequired
@@ -95,38 +96,40 @@
                 )     
               );
           },
-        });
+          }),
 
-      //Create React Elements for teachers view
-      var ContactViewTeachers = React.createClass({
-        propTypes: {
-          contacts: React.PropTypes.array.isRequired,
-          newContact: React.PropTypes.object.isRequired,
-          onNewContactChangeTeacher: React.PropTypes.func.isRequired,
-        },
+          setStateHandler = options ? options.setStateHandler : null,
 
-        render: function() {
-          var contactItemElementsTeacher = this.props.contacts.filter(function(contact) {
-           return contact.email;
-            })
-          .map(function(contact) { 
-            return React.createElement(TeacherItem, contact); 
+          //Create React Elements for teachers view
+          ContactViewTeachers = React.createClass({
+            propTypes: {
+              contacts: React.PropTypes.array.isRequired,
+              newContact: React.PropTypes.object.isRequired,
+              onNewContactChangeTeacher: React.PropTypes.func.isRequired,
+            },
+
+            render: function() {
+              var contactItemElementsTeacher = this.props.contacts.filter(function(contact) {
+               return contact.email;
+                })
+              .map(function(contact) { 
+                return React.createElement(TeacherItem, contact); 
+              });
+
+              return (
+                React.createElement('div', {className: 'ContactView'},
+                  React.createElement(ContactFormTeacher, {
+                    value: this.props.newContact,
+                    onChange: this.props.onNewContactChangeTeacher,
+                  }),
+                  React.createElement('h1', {className: 'ContactView-title'}, "Teachers List"),
+                  React.createElement('ul', {className: 'ContactView-list'}, contactItemElementsTeacher)
+                  )
+                );
+            },
           });
 
-          return (
-            React.createElement('div', {className: 'ContactView'},
-              React.createElement(ContactFormTeacher, {
-                value: this.props.newContact,
-                onChange: this.props.onNewContactChangeTeacher,
-              }),
-              React.createElement('h1', {className: 'ContactView-title'}, "Teachers List"),
-              React.createElement('ul', {className: 'ContactView-list'}, contactItemElementsTeacher)
-              )
-            );
-        },
-      });
-
-            Teacher.instances = {};
+          Teacher.instances = {};
 
            //create contact items list
                   var TeacherItem = React.createClass({
@@ -169,17 +172,15 @@
                   });
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
             //convert row object to teacher instance
             function convertRow2ObjTeacher(teacherItm) {
                 var teacher = new Teacher(teacherItm);
                 return teacher;
             }
-
-            
-            // function updateNewContactTeacher(contact) {
-            //       setState({ newContact: contact });
-            // }
+            //update state of teachers
+            function updateNewContactTeacher(contact) {
+                  setState({ newContact: contact });
+            }
 
             //Function to add teachers
             function onAddTeacher(self){
@@ -195,7 +196,6 @@
                 email : obj.email,
                 comment : obj.comment
               }; 
-
                 //Writing the resulting string as the value of the key "teacherObj" to Local Storage:
                 Teacher.instances[newKey] = teacherObj;   
                 localStorage.teachers = JSON.stringify(Teacher.instances);
@@ -205,7 +205,9 @@
               }
               if (error) alert("User "+ obj.name +" not saved.");
               //Refresh state
-              setState(teacherObj);
+              if(setStateHandler){
+               setStateHandler(teacherObj);
+             }
               window.location.reload();
             }
 
@@ -290,7 +292,8 @@
                 Teacher:Teacher,
                 afterUpdateTeacher:afterUpdateTeacher,
                 ContactViewTeachers:ContactViewTeachers,
-                ContactFormTeacher:ContactFormTeacher
+                ContactFormTeacher:ContactFormTeacher,
+                updateNewContactTeacher:updateNewContactTeacher
                };
      };
 
