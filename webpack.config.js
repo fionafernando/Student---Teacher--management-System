@@ -1,5 +1,5 @@
 module.exports = {
-  entry: "./App.js",
+  entry: "./bootstrap.js",
   output: {
     filename: "compiled.js"
   },

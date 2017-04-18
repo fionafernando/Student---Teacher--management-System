@@ -2,25 +2,24 @@
   "name": "first-webapp-react",
   "version": "1.0.0",
   "description": "",
-  "main": "App.js",
+  "main": "bootstrap.js",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "watchify -v -d -t [ reactify --es6 ] App.js -o compiled.js",
     "build": "NODE_ENV=production browserify -t [ reactify --es6 ] App.js | uglifyjs > compiled.js",
-    "start" : "webpack-dev-server"
+    "start": "webpack-dev-server"
   },
-  
   "author": "Fiona Fernando",
   "license": "Open",
   "dependencies": {
+    "jquery": "^3.2.1",
     "moment": "^2.10.2",
     "react": "^15.4.0",
     "react-bootstrap": "^0.30.8",
     "react-dom": "^15.4.0",
     "react-router": "^4.0.0"
   },
-
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^6.4.1",
