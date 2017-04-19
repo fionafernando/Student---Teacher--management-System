@@ -1,4 +1,3 @@
-
 define('model.student.js', ['react', 'react-dom', 'jquery'],
   function (React, ReactDOM, $) {
       //Asynchronous module defition with require
