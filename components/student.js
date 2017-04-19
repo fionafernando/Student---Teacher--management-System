@@ -3,6 +3,7 @@ define('student.js', ['react', 'react-dom', 'jquery'],
       //Asynchronous module defition with require
       //Using module pattern
       var StudentComponent = function (options) {
+        ///add model classes to keep the student objects and its methods
           //declare student constructor
           var Student = function (student) {
               this.name = student.name;
@@ -11,6 +12,8 @@ define('student.js', ['react', 'react-dom', 'jquery'],
               this.key = student.key;
               this.comment = student.comment;
           },
+          //notes: 
+          //extend student through prototyping
           state = {},
 
           setStateHandler = options ? options.setStateHandler : null,
