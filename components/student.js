@@ -49,7 +49,7 @@ define('student.js', ['react', 'react-dom', 'jquery'],
                              var self = this;
                              onUpdateStudent(self);
                          }.bind(this)
-                     }, "Uppdate")
+                     }, "Update")
                      )
                    );
              },
